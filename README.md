@@ -1,50 +1,120 @@
-# Welcome to your Expo app 👋
+Missão Prática
+Disciplina: RPG - 0023 | Vamos Criar um APP
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+# Meeting Mobile App
 
-1. Install dependencies
+Este é um aplicativo móvel desenvolvido com **React Native** e **Expo Router**. O projeto foi criado para a empresa "Meeting" e tem como objetivo gerenciar fornecedores, permitindo o cadastro de novos fornecedores, a listagem filtrada de fornecedores e a navegação para o perfil de cada fornecedor.
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## Sumário
 
-   ```bash
-    npx expo start
-   ```
+- [Visão Geral](#visão-geral)
+- [Funcionalidades](#funcionalidades)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Instalação e Execução](#instalação-e-execução)
+- [Exemplos de Código](#exemplos-de-código)
+- [Considerações Finais](#considerações-finais)
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Visão Geral
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+O aplicativo "Meeting" possui três telas principais:
 
-## Get a fresh project
+1. **Home**: Tela inicial com botões para navegação – "Novo Cadastro" e "Listagem de Fornecedores".
+2. **Cadastro de Fornecedores**: Tela para inserir informações (nome, endereço, contato, categoria) e para selecionar uma imagem do fornecedor a partir da galeria, utilizando o pacote `react-native-image-picker`.
+3. **Listagem de Fornecedores**: Tela que exibe todos os fornecedores cadastrados, permitindo filtrar por categoria e localização. Também possibilita a navegação para uma tela de perfil via rota dinâmica.
 
-When you're ready, run:
+O fluxo de navegação e a manipulação de estados utilizam conceitos do React Native, como componentes, hooks e props.
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Funcionalidades
 
-## Learn more
+- **Navegação com Expo Router**  
+  A navegação entre as telas é gerenciada pelo Expo Router, que utiliza a estrutura de arquivos para definir as rotas. Por exemplo, para navegar para o perfil do fornecedor é utilizado:
+  ```tsx
+  router.push(`/perfil/${item.id}`);
+  ```
 
-To learn more about developing your project with Expo, look at the following resources:
+Essa abordagem utiliza string interpolation para construir a URL da rota dinâmica, de acordo com a estrutura definida (por exemplo, app/perfil/[id].tsx).
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Cadastro de Fornecedores A tela de cadastro contém campos para os dados do fornecedor e permite a seleção de uma imagem. Após a validação dos campos, os dados são agrupados em um objeto e passados para a tela de listagem através dos parâmetros da rota. Veja um trecho representativo:
 
-## Join the community
+const salvarFornecedor = () => {
+if (!nome || !endereco || !contato || !categoria) {
+Alert.alert("Erro", "Preencha todos os campos para salvar o fornecedor.");
+return;
+}
 
-Join our community of developers creating universal apps.
+const novoFornecedor = {
+id: Date.now().toString(),
+nome,
+endereco,
+contato,
+categoria,
+imagem: imagemUri,
+};
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Alert.alert("Sucesso", "Fornecedor cadastrado com sucesso!", [
+{
+text: "OK",
+onPress: () => {
+// Após limpar os campos, redireciona para a listagem,
+// passando o novo fornecedor como parâmetro:
+router.push({
+pathname: "/listagem",
+params: { fornecedor: JSON.stringify(novoFornecedor) },
+});
+},
+},
+]);
+};
+
+Listagem e Filtros A tela de listagem permite filtrar fornecedores por categoria e localização. Caso um novo fornecedor tenha sido cadastrado, o hook useLocalSearchParams é utilizado para captar os parâmetros e atualizar o estado da lista, evitando duplicidades:
+
+useEffect(() => {
+if (searchParams.fornecedor) {
+try {
+const novoFornecedor = JSON.parse(searchParams.fornecedor as string);
+setFornecedores((prevFornecedores) => {
+if (prevFornecedores.find((f) => f.id === novoFornecedor.id)) {
+return prevFornecedores;
+}
+return [...prevFornecedores, novoFornecedor];
+});
+} catch (error) {
+console.log("Erro ao parsear o fornecedor:", error);
+}
+}
+}, [searchParams]);
+
+Tecnologias Utilizadas
+React Native – Framework para criar interfaces móveis.
+
+Expo Router – Gerencia as rotas e a navegação entre as telas.
+
+react-native-image-picker – Permite a seleção de imagens a partir da galeria.
+
+@react-native-picker/picker – Componente para seleção de itens (Pickers) nos filtros.
+
+Estrutura do Projeto
+A estrutura básica do projeto é a seguinte:
+
+project-root/
+├── app/
+│ ├── index.tsx # Tela Home
+│ ├── cadastro.tsx # Tela de Cadastro de Fornecedores
+│ ├── listagem.tsx # Tela de Listagem de Fornecedores
+│ └── perfil/
+│ └── [id].tsx # Tela de Perfil (rota dinâmica)
+├── assets/
+│ └── images/
+│ └── placeholder.png # Imagem padrão para fornecedores sem logo
+├── package.json
+└── README.md
+
+> Observação: > A existência do arquivo de rota dinâmica (app/perfil/[id].tsx) é fundamental para que a navegação dinâmica funcione corretamente.
