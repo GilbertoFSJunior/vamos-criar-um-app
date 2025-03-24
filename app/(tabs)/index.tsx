@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, Button, StyleSheet } from "react-native";
+import { View, Text, Button, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 
 const HomeScreen = () => {
@@ -7,21 +7,18 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Nome do App */}
       <Text style={styles.appName}>meeting</Text>
-
-      {/* Botões */}
       <View style={styles.buttonsContainer}>
         <Button
           title="Novo Cadastro"
           onPress={() => router.push("/cadastro")}
-          color="#4CAF50" // Cor customizada
+          color="#4CAF50"
         />
         <View style={styles.spacing} />
         <Button
           title="Listagem Fornecedores"
           onPress={() => router.push("/listagem")}
-          color="#2196F3" // Cor customizada
+          color="#2196F3"
         />
       </View>
     </View>
@@ -35,16 +32,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#f5f5f5",
   },
-  logoContainer: {
-    marginBottom: 20,
-    alignItems: "center",
-  },
-  logo: {
-    width: 100, // Substitua para ajustar o tamanho
-    height: 100,
-    borderRadius: 50, // Circular
-    backgroundColor: "#ddd", // Placeholder caso a imagem falhe
-  },
   appName: {
     fontSize: 30,
     fontWeight: "bold",
@@ -56,8 +43,9 @@ const styles = StyleSheet.create({
     width: "80%",
   },
   spacing: {
-    height: 15, // Espaçamento entre os botões
+    height: 15,
   },
 });
 
 export default HomeScreen;
+
