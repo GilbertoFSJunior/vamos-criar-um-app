@@ -43,9 +43,8 @@ const CadastroFornecedor = () => {
       return;
     }
 
-    // Criar objeto do novo fornecedor
     const novoFornecedor = {
-      id: Date.now().toString(), // Gerar um ID único
+      id: Date.now().toString(),
       nome,
       endereco,
       contato,
@@ -53,25 +52,26 @@ const CadastroFornecedor = () => {
       imagem: imagemUri,
     };
 
-    // Redirecionar para a tela de listagem e enviar o novo fornecedor como parâmetro
-    router.push({
-      pathname: "/listagem",
-      params: { fornecedor: JSON.stringify(novoFornecedor) },
-    });
-
-    // Limpar os campos após salvar
-    setNome("");
-    setEndereco("");
-    setContato("");
-    setCategoria("");
-    setImagemUri(null);
-
-    Alert.alert("Sucesso", "Fornecedor cadastrado com sucesso!");
+    Alert.alert("Sucesso", "Fornecedor cadastrado com sucesso!", [
+      {
+        text: "OK",
+        onPress: () => {
+          setNome("");
+          setEndereco("");
+          setContato("");
+          setCategoria("");
+          setImagemUri(null);
+          router.push({
+            pathname: "/listagem",
+            params: { fornecedor: JSON.stringify(novoFornecedor) },
+          });
+        },
+      },
+    ]);
   };
 
   return (
     <View style={styles.container}>
-      {/* Campo para imagem do fornecedor */}
       <TouchableOpacity
         style={styles.imageContainer}
         onPress={selecionarImagem}
@@ -83,7 +83,6 @@ const CadastroFornecedor = () => {
         )}
       </TouchableOpacity>
 
-      {/* Campos de formulário */}
       <Text style={styles.label}>Nome:</Text>
       <TextInput
         style={styles.input}
@@ -116,7 +115,6 @@ const CadastroFornecedor = () => {
         onChangeText={setCategoria}
       />
 
-      {/* Botões para salvar e navegar */}
       <Button
         title="Salvar Fornecedor"
         onPress={salvarFornecedor}
@@ -179,3 +177,4 @@ const styles = StyleSheet.create({
 });
 
 export default CadastroFornecedor;
+
