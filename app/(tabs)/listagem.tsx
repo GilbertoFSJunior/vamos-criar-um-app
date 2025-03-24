@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
   Button,
   StyleSheet,
   FlatList,
@@ -10,7 +9,7 @@ import {
   Image,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 const ListagemFornecedores = () => {
   const [categoria, setCategoria] = useState("");
@@ -40,16 +39,33 @@ const ListagemFornecedores = () => {
   ]);
 
   const router = useRouter();
+  const searchParams = useLocalSearchParams();
+
+  useEffect(() => {
+    if (searchParams.fornecedor) {
+      try {
+        const novoFornecedor = JSON.parse(searchParams.fornecedor as string);
+        setFornecedores((prevFornecedores) => {
+          if (prevFornecedores.find((f) => f.id === novoFornecedor.id)) {
+            return prevFornecedores;
+          }
+          return [...prevFornecedores, novoFornecedor];
+        });
+      } catch (error) {
+        console.log("Erro ao parsear o fornecedor:", error);
+      }
+    }
+  }, [searchParams]);
 
   const fornecedoresFiltrados = fornecedores.filter(
-    (fornecedor) =>
-      (categoria === "" || fornecedor.categoria === categoria) &&
-      (localizacao === "" || fornecedor.localizacao === localizacao)
+    (f) =>
+      (categoria === "" || f.categoria === categoria) &&
+      (localizacao === "" || f.localizacao === localizacao)
   );
 
   return (
     <View style={styles.container}>
-      {/* Campo de busca por categoria */}
+      {/* Filtros */}
       <View style={styles.filterContainer}>
         <Text style={styles.label}>Categoria:</Text>
         <Picker
@@ -64,7 +80,6 @@ const ListagemFornecedores = () => {
         </Picker>
       </View>
 
-      {/* Campo de busca por localização */}
       <View style={styles.filterContainer}>
         <Text style={styles.label}>Localização:</Text>
         <Picker
@@ -79,29 +94,26 @@ const ListagemFornecedores = () => {
         </Picker>
       </View>
 
-      {/* Botão de busca */}
       <Button title="Buscar" onPress={() => {}} color="#4CAF50" />
 
-      {/* Lista de fornecedores */}
       <FlatList
         data={fornecedoresFiltrados.sort((a, b) =>
           a.nome.localeCompare(b.nome)
-        )} // Ordena alfabeticamente
+        )}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.fornecedorItem}
-            onPress={() => router.push(`/perfil/${item.id}` as any)} // Redireciona para o perfil (Tela 4)
+            onPress={() => router.push({ pathname: `/perfil/${item.id}` })}
           >
             <Image
               source={
                 item.imagem
                   ? { uri: item.imagem }
-                  : require("../../assets/images/placeholder.png") // Caminho correto
+                  : require("../../assets/images/placeholder.png")
               }
               style={styles.imagem}
             />
-
             <View>
               <Text style={styles.nome}>{item.nome}</Text>
               <Text style={styles.detalhes}>Categoria: {item.categoria}</Text>
@@ -112,11 +124,12 @@ const ListagemFornecedores = () => {
           </TouchableOpacity>
         )}
         ListEmptyComponent={() => (
-          <Text style={styles.emptyMessage}>Nenhum fornecedor encontrado.</Text>
+          <View style={styles.emptyMessage}>
+            <Text>Nenhum fornecedor encontrado.</Text>
+          </View>
         )}
       />
 
-      {/* Botões de navegação */}
       <View style={styles.navButtons}>
         <Button title="Home" onPress={() => router.push("/")} color="#2196F3" />
         <Button
@@ -172,8 +185,7 @@ const styles = StyleSheet.create({
     color: "#555",
   },
   emptyMessage: {
-    textAlign: "center",
-    color: "#888",
+    alignItems: "center",
     marginTop: 20,
   },
   navButtons: {
